@@ -168,12 +168,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
 
 class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectField(
-        validators=[
-            LooseFkIsImmutableValidator(instance_path="canonical"),
-            LooseFkResourceValidator(
-                "EnkelvoudigInformatieObject", settings.DRC_API_SPEC
-            ),
-        ],
+        validators=[LooseFkIsImmutableValidator(instance_path="canonical")],
         max_length=1000,
         min_length=1,
         help_text=get_help_text(

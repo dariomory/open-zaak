@@ -126,11 +126,7 @@ class LooseFkResourceValidator(FKOrURLValidator):
         super().__init__(*args, **kwargs)
 
     def __call__(self, value: str):
-        # not to double FKOrURLValidator
-        try:
-            super().__call__(value)
-        except serializers.ValidationError:
-            return
+        super().__call__(value)
 
         # if local - do nothing
         parsed = urlparse(value)
