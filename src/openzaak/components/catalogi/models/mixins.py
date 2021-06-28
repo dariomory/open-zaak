@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q, QuerySet
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -17,6 +18,8 @@ class GeldigheidMixin(models.Model):
         null=True,
         help_text=_("De datum waarop het is opgeheven."),
     )
+
+    omschrijving_field = "omschrijving"
 
     class Meta:
         abstract = True
@@ -43,6 +46,8 @@ class GeldigheidMixin(models.Model):
             en is gelijk aan of ligt voor de Datum einde geldigheid zaaktype
 
         """
+        from openzaak.components.catalogi.utils import has_overlapping_objects
+
         super().clean()
 
         if self.datum_einde_geldigheid:
@@ -53,6 +58,21 @@ class GeldigheidMixin(models.Model):
                         "onder Datum begin geldigheid."
                     )
                 )
+
+        if has_overlapping_objects(
+            model_manager=self._meta.default_manager,
+            catalogus=self.catalogus,
+            omschrijving_query={
+                self.omschrijving_field: getattr(self, self.omschrijving_field)
+            },
+            begin_geldigheid=self.datum_begin_geldigheid,
+            einde_geldigheid=self.datum_einde_geldigheid,
+            instance=self,
+        ):
+            raise ValidationError(
+                f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
+                "overlappende geldigheid hebben."
+            )
 
     def _clean_geldigheid(self, zaaktype):
         """

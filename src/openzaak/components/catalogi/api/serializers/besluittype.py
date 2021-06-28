@@ -11,6 +11,7 @@ from ..validators import (
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
+    GeldigheidValidator,
 )
 
 
@@ -58,6 +59,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             "concept",
         )
         validators = [
+            GeldigheidValidator(),
             UniqueTogetherValidator(
                 queryset=BesluitType.objects.all(), fields=["catalogus", "omschrijving"]
             ),
